@@ -14,6 +14,6 @@ int main() {
         posterColis();
     }
 
-    sleep(10);
+    sleep(100);
     return 0;
 }

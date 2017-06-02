@@ -27,13 +27,19 @@
 
     void* actionDrone(void* data){
         Drone* d=(Drone*)data;
-        printf("C'est le drone %d de type %d, j'attends\n",d->id,d->type);
-        sem_wait(&fileAttenteCharge[d->type]);
-        printf("C'est le drone %d de type %d, j'attends pour charger\n",d->id,d->type);
-        sem_wait(&finCharge);
-        printf("C'est le drone %d de type %d, je charge\n",d->id,d->type);
-        sleep(1);
-        printf("C'est le drone %d de type %d, je libère la place\n",d->id,d->type);
-        sem_post(&finCharge);
+        while(1){
+            printf("C'est le drone %d de type %d, j'attends\n",d->id,d->type);
+            sem_wait(&fileAttenteCharge[d->type]);
+            printf("C'est le drone %d de type %d, j'attends pour charger\n",d->id,d->type);
+            sem_wait(&finCharge);
+            printf("C'est le drone %d de type %d, je charge\n",d->id,d->type);
+            sleep(1);
+            printf("C'est le drone %d de type %d, je vais livrer\n",d->id,d->type);
+            sem_post(&finCharge);
+            sleep(10);
+            printf("C'est le drone %d de type %d, je suis chez le client\n",d->id,d->type);
+            sleep(10);
+            printf("C'est le drone %d de type %d, je suis de retour\n",d->id,d->type);
+        }
         pthread_exit(0);
     };
