@@ -7,12 +7,13 @@
 #include "Drone.h"
 
 
-    int creerDrone(int id, int type){
+    int creerDrone(int id, int type,Vaisseau* v){
         pthread_t th;
         Drone *ceDrone=malloc(sizeof(Drone));
         ceDrone->id=id;
-        ceDrone->charge=100;
+        ceDrone->charge=AUTONOMIE;
         ceDrone->type=type;
+        ceDrone->v=v;
         if (pthread_create(&th, 0, actionDrone, (void *) ceDrone) != 0)
             erreur("Erreur Creation thread");
         return (int)th;
@@ -54,21 +55,22 @@
     }
 
     void retourVaisseau(Drone*  d){
-        sem_wait(&garage);
-        sem_post(&garage);
+        sem_wait(&d->v->garage);
+        sem_post(&d->v->garage);
         printf("C'est le drone %d de type %d, je suis rentré, je recharge\n",d->id,d->type);
-        sleep(100-d->charge);
+        sleep(AUTONOMIE-d->charge);
+        d->charge=AUTONOMIE;
         printf("C'est le drone %d de type %d, je suis rechargé, j'attends\n",d->id,d->type);
     }
 
     void preparationLivraison(Drone* d){
-        sem_wait(&fileAttenteCharge[d->type]);
+        sem_wait(&d->v->fileAttenteCharge[d->type]);
         printf("C'est le drone %d de type %d, j'attends pour charger\n",d->id,d->type);
-        sem_wait(&finCharge);
-        sem_wait(&garage);
-        sem_post(&garage);
+        sem_wait(&d->v->finCharge);
+        sem_wait(&d->v->garage);
+        sem_post(&d->v->garage);
         printf("C'est le drone %d de type %d, je charge\n",d->id,d->type);
         sleep(1);
         printf("C'est le drone %d de type %d, je vais livrer\n",d->id,d->type);
-        sem_post(&finCharge);
+        sem_post(&d->v->finCharge);
     }

@@ -7,12 +7,11 @@
 
 int main() {
     srand(time(NULL));
-    demarrerDrones(2);
+    Vaisseau* v=initVaisseau();
+    demarrerDrones(2,v);
     sleep(1);
-    sem_post(&finCharge);
-    sem_post(&garage);
     for(int i=0;i<10;i++){
-        posterColis();
+        posterColis(v);
     }
 
     sleep(100);
