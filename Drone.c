@@ -25,21 +25,50 @@
         exit(1);
     }
 
+    void aller(Drone* d,int distance){
+        for(int i=0;i<distance;i++){
+            sleep(1);
+            d->charge--;
+            if(d->charge<0){
+                printf("C'est le drone %d de type %d, je me crash\n",d->id,d->type);
+                pthread_exit(NULL);
+            }
+        }
+    }
+
     void* actionDrone(void* data){
         Drone* d=(Drone*)data;
         while(1){
-            printf("C'est le drone %d de type %d, j'attends\n",d->id,d->type);
-            sem_wait(&fileAttenteCharge[d->type]);
-            printf("C'est le drone %d de type %d, j'attends pour charger\n",d->id,d->type);
-            sem_wait(&finCharge);
-            printf("C'est le drone %d de type %d, je charge\n",d->id,d->type);
-            sleep(1);
-            printf("C'est le drone %d de type %d, je vais livrer\n",d->id,d->type);
-            sem_post(&finCharge);
-            sleep(10);
-            printf("C'est le drone %d de type %d, je suis chez le client\n",d->id,d->type);
-            sleep(10);
-            printf("C'est le drone %d de type %d, je suis de retour\n",d->id,d->type);
+            retourVaisseau(d);
+            preparationLivraison(d);
+            livraison(d);
         }
         pthread_exit(0);
     };
+
+    void livraison(Drone* d){
+        int ou=rand()%15;
+        aller(d,ou);
+        printf("C'est le drone %d de type %d, je suis chez le client\n",d->id,d->type);
+        aller(d,ou);
+    }
+
+    void retourVaisseau(Drone*  d){
+        sem_wait(&garage);
+        sem_post(&garage);
+        printf("C'est le drone %d de type %d, je suis rentré, je recharge\n",d->id,d->type);
+        sleep(100-d->charge);
+        printf("C'est le drone %d de type %d, je suis rechargé, j'attends\n",d->id,d->type);
+    }
+
+    void preparationLivraison(Drone* d){
+        sem_wait(&fileAttenteCharge[d->type]);
+        printf("C'est le drone %d de type %d, j'attends pour charger\n",d->id,d->type);
+        sem_wait(&finCharge);
+        sem_wait(&garage);
+        sem_post(&garage);
+        printf("C'est le drone %d de type %d, je charge\n",d->id,d->type);
+        sleep(1);
+        printf("C'est le drone %d de type %d, je vais livrer\n",d->id,d->type);
+        sem_post(&finCharge);
+    }

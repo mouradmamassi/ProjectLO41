@@ -10,6 +10,7 @@ int main() {
     demarrerDrones(2);
     sleep(1);
     sem_post(&finCharge);
+    sem_post(&garage);
     for(int i=0;i<10;i++){
         posterColis();
     }
