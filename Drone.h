@@ -4,8 +4,6 @@
 #define NB_TYPES 3
 #define AUTONOMIE 28
 
-//sem_t fileAttenteCharge[NB_TYPES],finCharge,garage;
-
 typedef struct Drone{
     int id;
     int type;
@@ -14,7 +12,9 @@ typedef struct Drone{
 }Drone;
 
 typedef struct Vaisseau{
-    sem_t fileAttenteCharge[NB_TYPES],finCharge,garage;
+    sem_t fileAttenteCharge[NB_TYPES],finCharge,garage[2];
+    int queueGarage[2],garageOccupe;
+    pthread_mutex_t m[3];
 }Vaisseau;
 
 int creerDrone(int,int,Vaisseau*);
@@ -27,3 +27,8 @@ void erreur(const char *);
 Vaisseau* initVaisseau(void);
 void demarrerDrones(int,Vaisseau*);
 void posterColis(Vaisseau* v);
+
+void inscriptionGarage(Vaisseau*,int);
+void entrerGarage(Vaisseau*,int);
+void sortirGarage(Vaisseau*);
+void appelGarage(Vaisseau*);

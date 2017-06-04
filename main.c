@@ -8,7 +8,7 @@
 int main() {
     srand(time(NULL));
     Vaisseau* v=initVaisseau();
-    demarrerDrones(2,v);
+    demarrerDrones(1,v);
     sleep(1);
     for(int i=0;i<10;i++){
         posterColis(v);
