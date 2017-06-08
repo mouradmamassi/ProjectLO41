@@ -7,7 +7,7 @@
 
 int main() {
     srand(time(NULL));
-    Vaisseau* v=initVaisseau();
+    Vaisseau* v = initVaisseau();
     demarrerDrones(1,v);
     sleep(1);
     for(int i=0;i<10;i++){

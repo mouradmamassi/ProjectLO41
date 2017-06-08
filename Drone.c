@@ -6,19 +6,49 @@
 #include <unistd.h>
 #include "Drone.h"
 
+    Colis creerColis(int p, int po, int cl, int e,int Nslot){
+        Colis c;
+        c.poids = po;
+        c.priorite = p;
+        c.client = cl;
+        c.Etat = e;
+        c.nslot = Nslot;
+        return c;
+    }
 
     int creerDrone(int id, int type,Vaisseau* v){
         pthread_t th;
-        Drone *ceDrone=malloc(sizeof(Drone));
-        ceDrone->id=id;
-        ceDrone->charge=AUTONOMIE;
-        ceDrone->type=type;
-        ceDrone->v=v;
+        Drone *ceDrone = malloc(sizeof(Drone));
+        ceDrone->id = id;
+        ceDrone->charge = AUTONOMIE;
+        ceDrone->type = type;
+        ceDrone->v = v;
+        ceDrone->c = getColis(&v);
+        //TODO
         if (pthread_create(&th, 0, actionDrone, (void *) ceDrone) != 0)
             erreur("Erreur Creation thread");
         return (int)th;
 
     }
+
+    Colis getColis(Vaisseau* v){
+        Colis * c = v->c;
+        Colis colis;
+        int pre = c[0].priorite, i;
+        for( i = 1; i < NB_Colis; i++){
+            if(c[i].priorite < pre){
+                pre = c[i].priorite;
+                colis = c[i];
+            }
+        }
+        return colis;
+
+    }
+
+
+
+
+
 
     void erreur(const char *msg)
     {
