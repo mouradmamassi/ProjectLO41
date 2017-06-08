@@ -9,7 +9,7 @@
         Vaisseau* v=malloc(sizeof(Vaisseau));
         sem_init(&v->garage[0],0,1);
         sem_init(&v->garage[1],0,1);
-        sem_init(&v->finCharge,0,3);
+        sem_init(&v->finCharge,0,1);
         for(int i=0;i<NB_TYPES;i++){
             sem_init(&v->fileAttenteCharge[i],0,0);
         }
