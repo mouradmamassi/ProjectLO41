@@ -17,18 +17,25 @@ typedef struct Vaisseau{
     pthread_mutex_t m[3];
 }Vaisseau;
 
+    // actions drones
+
 int creerDrone(int,int,Vaisseau*);
 void* actionDrone(void*);
 void preparationLivraison(Drone*);
 void retourVaisseau(Drone*);
 void livraison(Drone*);
-void erreur(const char *);
+
+    // actions vaisseau mère
 
 Vaisseau* initVaisseau(void);
 void demarrerDrones(int,Vaisseau*);
 void posterColis(Vaisseau* v);
 
+    // gestion garage
+
 void inscriptionGarage(Vaisseau*,int);
 void entrerGarage(Vaisseau*,int);
 void sortirGarage(Vaisseau*);
 void appelGarage(Vaisseau*);
+
+void erreur(const char *);
