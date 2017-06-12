@@ -23,19 +23,30 @@
     }
 
     void demarrerDrones(int nb,Vaisseau* v){
-        for(int i=0;i<NB_TYPES;i++){
-            for(int j=0;j<nb;j++){
-                creerDrone(i*(NB_TYPES-1)+j,i,v);
+        int j, i = 0;
+        Colis *c = malloc(sizeof(Colis));
+        for(i=0;i<NB_TYPES;i++){
+            for(j=0;j<nb;j++){
+                *c = getColis(v);
+                if(c->priorite != 0)
+                    creerDrone(i*(NB_TYPES-1)+j,c->type,v, c);
             }
         }
     }
 
-    int creerColis(void){
-        return rand() % 3;
-    }
-
     void posterColis(Vaisseau* v){
-        int colis=creerColis();
-        printf("J'ai un colis de type %d\n",colis);
-        sem_post(&v->fileAttenteCharge[colis]);
+
+        Colis* coliss = (Colis*) malloc(sizeof(Colis) * NB_COLIS);
+        coliss[0] = *creerColis(GRANDE, 1, 20, 3, ENCOURS);
+        coliss[1] = *creerColis(MOYENNE, 2, 2, 4, ENCOURS);
+        coliss[2] = *creerColis(GRANDE, 3, 2, 3, ENCOURS);
+        coliss[3] = *creerColis(MOYENNE, 4, 2, 4, ENCOURS);
+        coliss[4] = *creerColis(GRANDE, 5, 2, 3, ENCOURS);
+        coliss[5] = *creerColis(PETITE, 6, 2, 4, ENCOURS);
+
+        for(int i = 0; i < NB_COLIS; i++){
+            printf("J'ai un colis de type %d\n",coliss[i].type);
+            sem_post(&v->fileAttenteCharge[coliss[i].type]);
+        }
+         v->c = coliss;
     }

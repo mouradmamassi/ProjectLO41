@@ -7,11 +7,16 @@
 
 int main() {
     srand(time(NULL));
-    Vaisseau* v=initVaisseau();
-    demarrerDrones(1,v);
-    for(int i=0;i<10;i++){
-        posterColis(v);
-    }
+    Vaisseau* v = initVaisseau();
+    posterColis(v);
+    demarrerDrones(1, v);
+
+
+
+//    for(int i=0;i<10;i++){
+
+//    }
+
 
     sleep(100);
     return 0;
