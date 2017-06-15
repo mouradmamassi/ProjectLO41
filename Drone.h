@@ -45,7 +45,6 @@ typedef struct Drone{
 
 
 //list
-int first(node_colis **);
 void print_list(node_colis*);
 void add(node_colis*, Colis*);
 int remove_by_position(node_colis**, int);

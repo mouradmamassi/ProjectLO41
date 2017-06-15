@@ -48,25 +48,9 @@ void add(node_colis * head, Colis* col) {
         current = current->next;
     }
 
-    /* now we can add a new variable */
     current->next = malloc(sizeof(node_colis));
     current->next->col = *col;
     current->next->next = NULL;
-}
-int first(node_colis ** head) {
-    int retval = -1;
-    node_colis * next_node = NULL;
-
-    if (*head == NULL) {
-        return -1;
-    }
-
-    next_node = (*head)->next;
-    retval = (*head)->col.id;
-    free(*head);
-    *head = next_node;
-
-    return retval;
 }
 
 int remove_by_position(node_colis** head, int id){
