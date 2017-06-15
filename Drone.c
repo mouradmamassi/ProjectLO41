@@ -4,41 +4,38 @@
 #include <unistd.h>
 #include "Drone.h"
 
-Colis* creerColis(int id, int typ, int p, int po, int cl, int e){
+Colis* creerColis(int id, int typ, int p, int poid, int cl, int e){
     Colis* c = malloc(sizeof(Colis));
     c->id = id;
     c->type = typ;
     c->priorite = p;
-    c->poids = po;
+    c->poids = poid;
     c->client = cl;
     c->Etat = e;
 
     return c;
 }
 
-Colis getColis(Vaisseau* v){
+Colis getColis(Vaisseau* v, int type){
 
     node_colis* c = v->c;
     Colis colis;
     int pre = NB_COLIS;
     while(c != NULL){
-        if(c->col.Etat == ENCOURS) {
+        if(c->col.Etat == ENCOURS && c->col.type == type) {
             if (c->col.priorite <= pre) {
                 colis = c->col;
                 pre = c->col.priorite;
-
             }
         }
         c = c->next;
     }
-//    printf(" pres is  %d id is %d \n", pre, colis.id);
-//    printf(" id colis %d \n", colis.id);
-    printf("remove the colis id %d \n", remove_by_position(&v->c, colis.id));
+    printf("colis id %d  est bien charger \n", remove_by_position(&v->c, colis.id));
 
     return colis;
 
 }
-int creerDrone(int id, int type, Vaisseau* v, Colis* c){
+int creerDrone(int id, int type, Vaisseau* v, node_colis* c){
     pthread_t th;
     Drone *ceDrone = malloc(sizeof(Drone));
     ceDrone->id = id;
@@ -84,25 +81,49 @@ void* actionDrone(void* data){
         preparationLivraison(d);
         livraison(d);
     }
+
 };
 
 void livraison(Drone* d){
-    aller(d,d->c->client);
-    printf("C'est le drone %d de type %d, je suis chez le client\n",d->id,d->type);
-    int etat_colis = rand()%(2) + 1;
-    if(etat_colis == 1)
-        etat_colis = rand()%(2) + 1;
-    if(etat_colis == 2)
-        printf("C'est le drone %d de type %d, je suis chez le client, Colis bien livré  \n",d->id,d->type);
-    if(etat_colis == 1) {
-        printf("C'est le drone %d de type %d, je suis chez le client, Colis n'est pas livré \n", d->id, d->type);
-        d->c->Etat = NOLIVRE;
-        add(d->v->c, d->c);
-        print_list(d->v->c);
+
+    node_colis* current = d->c;
+    int destination = 0;
+    aller(d, current->col.client);
+    while(current != NULL){
+        d->charge -= destination;
+
+        printf("drone %d  deplacer la charge est %d \n", d->id, d->charge);
+
+        printf("C'est le drone %d de type %d, je suis chez le client\n", d->id, d->type);
+        int etat_colis = rand()%(2) + 1;
+
+        if(etat_colis == 1)
+            etat_colis = rand()%(2) + 1;
+
+        if(etat_colis == 2) {
+            printf("C'est le drone %d de type %d, je suis chez le client, Colis %d bien livré  \n", d->id, d->type,
+                   current->col.id);
+            remove_by_position(&d->c, current->col.id);
+        }
+
+        if(etat_colis == 1) {
+            printf("C'est le drone %d de type %d, je suis chez le client, Colis %d n'est pas livré \n", d->id, d->type,
+                   current->col.id);
+            current->col.Etat = NOLIVRE;
+        }
+        destination = current->col.client;
+        current = current->next;
+
     }
 
-    aller(d,d->c->client);
+    aller(d, destination); //back home
+
+
+
+
 }
+
+
 
 void chargerDrone(Drone* d){
     if(d->type == MOYENNE){
@@ -117,6 +138,20 @@ void chargerDrone(Drone* d){
         sleep(AUTONOMIE_GRANDE-d->charge);
         d->charge = AUTONOMIE_GRANDE;
     }
+
+}
+
+void VaisseauEtatColis(Drone * d){
+    node_colis* current = d->c;
+    while(current != NULL){
+        if(current->col.Etat == NOLIVRE)
+            add(d->v->c, current->col.id);
+
+        current = current->next;
+    }
+
+    print_list(d->v);
+
 }
 void retourVaisseau(Drone*  d){
     inscriptionGarage(d->v,1);

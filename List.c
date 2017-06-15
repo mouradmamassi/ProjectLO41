@@ -36,7 +36,6 @@ int remove_by_position(node_colis** head, int id){
     }
 
     while (current != NULL && previous != NULL) {
-        printf("\n %d IDDD \n ", current->col.id);
         if(current->col.id == id){
             temp = current;
             retourval = temp->col.id;

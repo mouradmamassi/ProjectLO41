@@ -25,7 +25,7 @@ void entrerGarage(Vaisseau* v,int prio){
 void sortirGarage(Vaisseau* v){
     sleep(1);
     pthread_mutex_lock(&v->m[2]);
-    v->garageOccupe=0;
+    v->garageOccupe = 0;
     pthread_mutex_unlock(&v->m[2]);
     appelGarage(v);
 }

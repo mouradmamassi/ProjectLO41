@@ -3,10 +3,10 @@
 #include <semaphore.h>
 
 #define NB_TYPES 3
-#define AUTONOMIE_GRANDE 40
-#define AUTONOMIE_MOYENNE 30
-#define AUTONOMIE_PETITE 20
-#define NB_COLIS 6
+#define AUTONOMIE_GRANDE 200
+#define AUTONOMIE_MOYENNE 90
+#define AUTONOMIE_PETITE 40
+#define NB_COLIS 10
 #define GRANDE 2
 #define PETITE 0
 #define MOYENNE 1
@@ -40,7 +40,7 @@ typedef struct Drone{
     int type;
     int charge;
     Vaisseau* v;
-    Colis* c;
+    node_colis* c;
 }Drone;
 
 
@@ -50,12 +50,12 @@ void add(node_colis*, Colis*);
 int remove_by_position(node_colis**, int);
 //action colis
 
-Colis getColis(Vaisseau* v);
+Colis getColis(Vaisseau* v, int);
 Colis* creerColis(int, int, int, int, int, int);
 
 // actions drones
 
-int creerDrone(int,int,Vaisseau*, Colis*);
+int creerDrone(int,int,Vaisseau*, node_colis*);
 void* actionDrone(void*);
 void preparationLivraison(Drone*);
 void retourVaisseau(Drone*);
@@ -65,7 +65,6 @@ void livraison(Drone*);
 
 Vaisseau* initVaisseau(void);
 void demarrerDrones(int,Vaisseau*);
-//void demarrerDrones(Vaisseau*);
 void posterColis(Vaisseau* v);
 
 // gestion garage
