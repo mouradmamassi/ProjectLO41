@@ -8,11 +8,11 @@
 int main() {
     srand(time(NULL));
     Vaisseau* v=initVaisseau();
-    demarrerDrones(1,v);
-    for(int i=0;i<10;i++){
-        posterColis(v);
-    }
+    creerColis(v,10);
+
+    demarrerDrones(2,v);
 
     sleep(100);
+    //nettoyer(v);
     return 0;
 }

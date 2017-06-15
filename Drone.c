@@ -14,6 +14,7 @@
         ceDrone->charge=AUTONOMIE;
         ceDrone->type=type;
         ceDrone->v=v;
+        ceDrone->fret=NULL;
         if (pthread_create(&th, 0, actionDrone, (void *) ceDrone) != 0)
             erreur("Erreur Creation thread");
         return (int)th;
@@ -48,9 +49,19 @@
     };
 
     void livraison(Drone* d){
-        int ou=rand()%15+1;
+        int ou=d->fret->distance;
         aller(d,ou);
-        printf("C'est le drone %d de type %d, je suis chez le client\n",d->id,d->type);
+        printf("C'est le drone %d de type %d, j'attends le client\n",d->id,d->type);
+        int att=rand()%10 +10;
+        sleep(att);
+        if(att<10){
+            printf("C'est le drone %d, le client s'est pointé, colis %d livré\n",d->id,d->fret->no);
+            free(d->fret);
+            d->fret=NULL;
+        }
+        else{
+            printf("C'est le drone %d, pas de client, retour du colis %d\n",d->id,d->fret->no);
+        }
         aller(d,ou);
     }
 
@@ -58,6 +69,11 @@
         inscriptionGarage(d->v,1);
         entrerGarage(d->v,1);
         sortirGarage(d->v);
+        if(d->fret!=NULL){
+            d->fret->prio+=5;
+            posterColis(d->v,d->fret);
+            d->fret=NULL;
+        }
         printf("C'est le drone %d de type %d, je suis rentré, je recharge\n",d->id,d->type);
         sleep(AUTONOMIE-d->charge);
         d->charge=AUTONOMIE;
@@ -67,8 +83,9 @@
 
 
     void preparationLivraison(Drone* d){
-        sem_wait(&d->v->fileAttenteCharge[d->type]);
-        printf("C'est le drone %d de type %d, j'attends pour charger\n",d->id,d->type);
+        printf("C'est le drone %d de type %d, j'attends un colis\n",d->id,d->type);
+        d->fret= sortirColis(d->v,d->type);
+        printf("C'est le drone %d de type %d, j'ai tiré le colis %d à livre à %d\n",d->id,d->type,d->fret->no,d->fret->distance);
         sem_wait(&d->v->finCharge);
         inscriptionGarage(d->v,0);
         entrerGarage(d->v,0);
