@@ -6,3 +6,4 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 
 set(SOURCE_FILES main.c Drone.h Drone.c Vaisseau.c Garage.c List.c)
 add_executable(ProjectLO41 ${SOURCE_FILES})
+#target_link_libraries( ProjectLO41  /dev/mqueue/)
