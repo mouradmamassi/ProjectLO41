@@ -70,7 +70,7 @@
         entrerGarage(d->v,1);
         sortirGarage(d->v);
         if(d->fret!=NULL){
-            d->fret->prio+=5;
+            d->fret->prio=0;
             posterColis(d->v,d->fret);
             d->fret=NULL;
         }

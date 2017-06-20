@@ -31,12 +31,12 @@
             struct mq_attr* attr=NULL;
             struct mq_attr at;
             at.mq_msgsize=sizeof(Colis)+4;
-            at.mq_maxmsg=10;
+            at.mq_maxmsg=1000;
             at.mq_flags=O_RDWR;
             at.mq_curmsgs=0;
             attr=&at;
             v->colisAttente[i] = mq_open(c,O_CREAT | O_RDWR,0666,attr);
-            printf("descripteur : %d, errno=%d\n",v->colisAttente[i],errno);
+            //printf("descripteur : %d, errno=%d\n",v->colisAttente[i],errno);
         }
 
 
@@ -64,17 +64,17 @@
     }
 
     void posterColis(Vaisseau* v,Colis* c){
-        ssize_t  b = mq_send(v->colisAttente[c->type],(char*)c,sizeof(Colis)+4,c->prio);
-        printf("colis %d posté, type %d, distance %d, prio %d, message : %d, errno=%d\n",c->no,c->type,c->distance,c->prio,(int) b,errno);
+        mq_send(v->colisAttente[c->type],(char*)c,sizeof(Colis)+4,c->prio);
+        printf("colis %d posté, type %d, distance %d, prio %d\n",c->no,c->type,c->distance,c->prio);
         free(c);
     }
 
     Colis* sortirColis(Vaisseau* v,int type){
         char b[sizeof(Colis)+4];
-        int a =mq_receive(v->colisAttente[type], b,sizeof(Colis)+4,NULL);
+        mq_receive(v->colisAttente[type], b,sizeof(Colis)+4,NULL);
         Colis* c=malloc(sizeof(Colis));
         *c=*(Colis*)b;
-        printf("Colis %d recu, type %d, distance %d, prio %d, message %d, errno%d\n",c->no,c->type,c->distance,c->prio,a,errno);
+        printf("Colis %d recu, type %d, distance %d, prio %d\n",c->no,c->type,c->distance,c->prio);
         return c;
     }
 
@@ -87,10 +87,4 @@
             c->prio=rand()%10;
             posterColis(v,c);
         }
-    }
-
-    void appelerDrone(Vaisseau *v){
-        int colis=1;
-        printf("J'ai un colis de type %d\n",colis);
-        sem_post(&v->fileAttenteCharge[colis]);
     }

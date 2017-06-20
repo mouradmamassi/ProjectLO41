@@ -5,12 +5,17 @@
 #include "Drone.h"
 
 
-int main() {
+int main(int argc, char *argv[]) {
+    int nbDrones=1,nbColis=10;
+    if(argc==3){
+        nbDrones=atoi(argv[1]);
+        nbColis=atoi(argv[2]);
+    }
     srand(time(NULL));
     Vaisseau* v=initVaisseau();
-    creerColis(v,10);
+    creerColis(v,nbColis);
 
-    demarrerDrones(2,v);
+    demarrerDrones(nbDrones,v);
 
     sleep(100);
     //nettoyer(v);

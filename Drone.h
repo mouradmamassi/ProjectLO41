@@ -41,7 +41,6 @@ void livraison(Drone*);
 
 Vaisseau* initVaisseau(void);
 void demarrerDrones(int,Vaisseau*);
-void appelerDrone(Vaisseau *v);
 void posterColis(Vaisseau*,Colis*);
 void creerColis(Vaisseau*, int);
 Colis* sortirColis(Vaisseau*,int);
