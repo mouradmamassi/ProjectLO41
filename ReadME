@@ -1,0 +1,4 @@
+pour compiler 
+->make clean 
+->make 
+->./project

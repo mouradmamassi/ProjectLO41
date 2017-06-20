@@ -1,0 +1,1 @@
+/usr/bin/cc   -pthread -g   CMakeFiles/ProjectLO41.dir/main.c.o CMakeFiles/ProjectLO41.dir/Drone.c.o CMakeFiles/ProjectLO41.dir/Vaisseau.c.o CMakeFiles/ProjectLO41.dir/Garage.c.o CMakeFiles/ProjectLO41.dir/List.c.o  -o ProjectLO41 
