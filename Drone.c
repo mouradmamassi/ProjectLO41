@@ -7,6 +7,7 @@
 #include "Drone.h"
 
 
+
     int creerDrone(int id, int type,Vaisseau* v){
         pthread_t th;
         Drone *ceDrone=malloc(sizeof(Drone));
@@ -15,9 +16,20 @@
         ceDrone->type=type;
         ceDrone->v=v;
         ceDrone->fret=NULL;
+        v->dronesTab[id]=ceDrone;
         if (pthread_create(&th, 0, actionDrone, (void *) ceDrone) != 0)
             erreur("Erreur Creation thread");
         return (int)th;
+
+    }
+
+    void detruireDrone(Drone* d){
+        if(d->fret!=NULL){
+            free(d->fret);
+        }
+        if(d!=NULL){
+            free(d);
+        }
 
     }
 
@@ -41,23 +53,30 @@
 
     void* actionDrone(void* data){
         Drone* d=(Drone*)data;
+
         while(1){
             retourVaisseau(d);
             preparationLivraison(d);
             livraison(d);
         }
-    };
+    }
 
     void livraison(Drone* d){
         int ou=d->fret->distance;
         aller(d,ou);
         printf("C'est le drone %d de type %d, j'attends le client\n",d->id,d->type);
-        int att=rand()%10 +10;
+        int att=rand()%10+1;
         sleep(att);
         if(att<10){
             printf("C'est le drone %d, le client s'est pointé, colis %d livré\n",d->id,d->fret->no);
             free(d->fret);
             d->fret=NULL;
+            pthread_mutex_lock(&d->v->mNbColisLivres);
+            d->v->nbColisLivres++;
+            pthread_mutex_unlock(&d->v->mNbColisLivres);
+            if(d->v->nbColisLivres+d->v->nbColisNonLivrables==d->v->nbColis){
+                sem_post(&d->v->fini);
+            }
         }
         else{
             printf("C'est le drone %d, pas de client, retour du colis %d\n",d->id,d->fret->no);
@@ -92,6 +111,6 @@
         sortirGarage(d->v);
         printf("C'est le drone %d de type %d, je charge\n",d->id,d->type);
         sleep(1);
-        printf("C'est le drone %d de type %d, je vais livrer\n",d->id,d->type);
+        printf("C'est le drone %d de type %d, je vais livrer le colis %d à %d\n",d->id,d->type,d->fret->no,d->fret->distance);
         sem_post(&d->v->finCharge);
     }
