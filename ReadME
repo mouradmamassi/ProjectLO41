@@ -1,4 +1,4 @@
 pour compiler 
 ->make clean 
 ->make 
-->./project
+->./project nbDrone nbColis

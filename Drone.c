@@ -5,49 +5,36 @@
 #include <errno.h>
 #include "Drone.h"
 
+void detruireDrone(Drone* d){
+    if(d->clist != NULL){
+        free(d->clist);
+    }
+    if(d != NULL){
+        free(d);
+    }
 
-Colis* creerColis(int id, int typ, unsigned int p, int poid, int cl, int e){
-    Colis* c = malloc(sizeof(Colis));
-    c->id = id;
-    c->type = typ;
-    c->priorite = p;
-    c->poids = poid;
-    c->client = cl;
-    c->Etat = e;
-
-    return c;
 }
 
 Colis getColis(Vaisseau* v, int type){
 
-//    node_colis* c = v->c;
-//    Colis colis;
-//    int pre = NB_COLIS;
-//    while(c != NULL){
-//        if(c->col.Etat == ENCOURS && c->col.type == type) {
-//            if (c->col.priorite <= pre) {
-//                colis = c->col;
-//                pre = c->col.priorite;
-//            }
-//        }
-//        c = c->next;
-//    }
-//    printf("colis id %d  est bien charger \n", remove_by_position(&v->c, colis.id));
-//   return colis;
-
-
     char b[sizeof(Colis) + 4];
-    ssize_t  a = mq_receive(v->colisAttente[type], b, sizeof(Colis) + 4, NULL);
     Colis* c = malloc(sizeof(Colis));
+    if(mq_receive(v->colisAttente[type], b, sizeof(Colis) + 4, NULL) == -1){
+        c->id = -1;
+        return *c;
+    }
     *c = *(Colis*) b;
-    printf("Colis %d recu, type %d, distance %d, prio %d, message %d, errno%d\n", c->id, c->type, c->client, c->priorite, (int)a, errno);
+    printf("Colis %d recu, type %d, distance %d, prio %d \n", c->id, c->type, c->client, c->priorite);
     return *c;
 
 }
-int creerDrone(int id, int type, Vaisseau* v, node_colis* c){
+int creerDrone(int id, int type,Vaisseau* v){
     pthread_t th;
+    node_colis* listcolis = malloc(sizeof(node_colis));
+    Colis* c = malloc(sizeof(Colis));
     Drone *ceDrone = malloc(sizeof(Drone));
     ceDrone->id = id;
+
     if(type == GRANDE)
         ceDrone->charge = AUTONOMIE_GRANDE;
     else if(type == MOYENNE)
@@ -56,7 +43,13 @@ int creerDrone(int id, int type, Vaisseau* v, node_colis* c){
         ceDrone->charge = AUTONOMIE_PETITE;
     ceDrone->type = type;
     ceDrone->v = v;
-    ceDrone->c = c;
+    for(int i = 0; i < 3; i++){
+        *c = getColis(v, type);
+        if(c->id != -1)
+            add(listcolis, c);
+    }
+    ceDrone->clist = listcolis;
+    v->dronesTab[id] = ceDrone;
     if (pthread_create(&th, 0, actionDrone, (void *) ceDrone) != 0)
         erreur("Erreur Creation thread");
 
@@ -95,7 +88,7 @@ void* actionDrone(void* data){
 
 void livraison(Drone* d){
 
-    node_colis* current = d->c;
+    node_colis* current = d->clist;
     int destination = 0;
     aller(d, current->col.client);
     while(current != NULL){
@@ -103,23 +96,27 @@ void livraison(Drone* d){
 
         printf("drone %d  deplacer la charge est %d \n", d->id, d->charge);
 
-        printf("C'est le drone %d de type %d, je suis chez le client\n", d->id, d->type);
-        int etat_colis = rand()%(2) + 1;
+        printf("C'est le drone %d de type %d, j'attends le client\n",d->id,d->type);
+        int att=rand()%10+1;
+        sleep(att);
 
-        if(etat_colis == 1)
-            etat_colis = rand()%(2) + 1;
-
-        if(etat_colis == 2) {
+        if(att<10){
             printf("C'est le drone %d de type %d, je suis chez le client, Colis %d bien livré  \n", d->id, d->type,
                    current->col.id);
-            remove_by_position(&d->c, current->col.id);
+            remove_by_position(&d->clist, current->col.id);
+
+            pthread_mutex_lock(&d->v->mNbColisLivres);
+            d->v->nbColisLivres++;
+            pthread_mutex_unlock(&d->v->mNbColisLivres);
+            if( (d->v->nbColisLivres + d->v->nbColisNonLivrables) == d->v->nbColis){
+                sem_post(&d->v->fini);
+            }
+        }else{
+
+            current->col.Etat = NOLIVRE;
+            printf("C'est le drone %d, pas de client, retour du colis %d\n",d->id,current->col.id);
         }
 
-        if(etat_colis == 1) {
-            printf("C'est le drone %d de type %d, je suis chez le client, Colis %d n'est pas livré \n", d->id, d->type,
-                   current->col.id);
-            current->col.Etat = NOLIVRE;
-        }
         destination = current->col.client;
         current = current->next;
 
@@ -150,22 +147,6 @@ void chargerDrone(Drone* d){
 
 }
 
-//void VaisseauEtatColis(Drone * d){
-//    node_colis* current = d->c;
-//    while(current != NULL){
-//        if(current->col.Etat == NOLIVRE){
-//            ssize_t  b = mq_send(d->v->colisAttente[current->col.type], (char*)&current->col, sizeof(Colis) + 4, current->col.priorite);
-//            printf("colis %d posté, type %d, distance %d, prio %d, message : %d, errno=%d\n", current->col.id,
-//                   current->col.type, current->col.client, current->col.priorite, (int) b, errno);
-//        }
-////            add(d->v->c, current->col.id);
-//
-//        current = current->next;
-//    }
-//
-////    print_list(d->v);
-//
-//}
 void retourVaisseau(Drone*  d){
     inscriptionGarage(d->v,1);
     entrerGarage(d->v,1);

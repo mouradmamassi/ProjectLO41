@@ -69,6 +69,8 @@ pthread.h
 -
 stdlib.h
 -
+signal.h
+-
 Drone.h
 /home/momo/CLionProjects/ProjectLO41/Drone.h
 
