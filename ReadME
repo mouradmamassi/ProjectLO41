@@ -1,5 +1,7 @@
-Remplacer la valeur dans le fichier /proc/sys/fs/mqueue/msg_max de 10 à 1000
-pour compiler 
+
+pour compiler
+->sudo su
+->sed 's/10/10000/' /proc/sys/fs/mqueue/msg_max > /proc/sys/fs/mqueue/msg_max // modifier la valeur de 10 a 10000
 ->make clean 
 ->make 
 ->./project [nbDrone] [nbColis]
