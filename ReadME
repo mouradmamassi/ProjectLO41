@@ -1,4 +1,5 @@
+Remplacer la valeur dans le fichier /proc/sys/fs/mqueue/msg_max de 10 à 1000
 pour compiler 
 ->make clean 
 ->make 
-->./project nbDrone nbColis
+->./project [nbDrone] [nbColis]
